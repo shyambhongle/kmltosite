@@ -15,8 +15,7 @@ Adjust the CSV file according to the format specified in this Google Sheets temp
 https://docs.google.com/spreadsheets/d/1b7CulH4HAqDWPEVbnTHa-04MkymDKc7XuyHvQxdwfmk/edit?gid=1358388445#gid=1358388445
 
 5. Clean Up the CSV File(You can try this tool to convert required filed)
-Use the tool available at cleanUpCsv.html to clean up and format the CSV file. Please ensure you only have fields that are mentioned in the sampel csv.
-Download the cleaned CSV and ensure it matches the required format.
+Create a tool using chatGPT to tranform you data to required format.Please ensure you only have fields that are mentioned in the sampel csv. Once done dowload it.
 
 6. Import the CSV File(The cleanup one)
 Finally, import the formatted CSV file into the TreeMapper Beta web application.

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KML to GeoJSON Converter</title>
+</head>
+<body>
+
+<input type="file" id="fileInput" />
+<pre id="output"></pre>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/togeojson/0.16.0/togeojson.min.js"></script>
+
+<script>
+document.getElementById('fileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = function(event) {
+        const kmlText = event.target.result;
+        const parser = new DOMParser();
+        const kmlDoc = parser.parseFromString(kmlText, 'application/xml');
+        
+        const geojson = toGeoJSON.kml(kmlDoc);
+        
+        document.getElementById('output').textContent = JSON.stringify(geojson, null, 2);
+    };
+    
+    reader.readAsText(file);
+});
+</script>
+
+</body>
+</html>

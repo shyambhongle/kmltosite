@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoJSON to CSV</title>
+</head>
+<body>
+
+<input type="file" id="fileInput" accept=".geojson" />
+<button id="exportButton">Export CSV</button>
+<pre id="output"></pre>
+
+<script>
+document.getElementById('fileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        const geojsonText = event.target.result;
+        const geojson = JSON.parse(geojsonText);
+        const csvData = convertGeoJSONToCSV(geojson);
+        displayData(csvData);
+        document.getElementById('exportButton').onclick = function() {
+            exportCSV(csvData);
+        };
+    };
+
+    reader.readAsText(file);
+});
+
+function convertGeoJSONToCSV(geojson) {
+    const features = geojson.features;
+    const headers = [
+        'Name', 'Description', 'Comment', 'Easting', 'Northing', 
+        'Name on GPS', 'Date Created', 'Zone', 'Longitude', 'Latitude'
+    ];
+
+    const rows = features.map(feature => {
+        const props = feature.properties;
+        const coords = feature.geometry.coordinates;
+        const date = formatDate(props['Date Created']);
+
+        return [
+            props.name || '',
+            props.description || '',
+            props.Comment || '',
+            props.Easting || '',
+            props.Northing || '',
+            props['Name on GPS'] || '',
+            date,
+            props.Zone || '',
+            coords[0] || '', // Longitude
+            coords[1] || ''  // Latitude
+        ];
+    });
+
+    return {
+        headers: headers,
+        rows: rows
+    };
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB'); // Format as DD/MM/YYYY
+}
+
+function displayData(data) {
+    const output = document.getElementById('output');
+    const headers = data.headers.join(',');
+    const rows = data.rows.map(row => row.join(',')).join('\n');
+    output.textContent = `${headers}\n${rows}`;
+}
+
+function exportCSV(data) {
+    const headers = data.headers.join(',');
+    const rows = data.rows.map(row => row.join(',')).join('\n');
+    const csvContent = `data:text/csv;charset=utf-8,${headers}\n${rows}`;
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'geojson_data.csv');
+    document.body.appendChild(link);
+    
+    link.click();
+}
+</script>
+
+</body>
+</html>
