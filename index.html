@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoJSON Points to Rectangle</title>
+</head>
+<body>
+
+<input type="file" id="fileInput" accept=".geojson" />
+<pre id="output"></pre>
+
+<script>
+document.getElementById('fileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        const geojson = JSON.parse(event.target.result);
+        const rectangleGeojson = pointsToRectangle(geojson);
+        document.getElementById('output').textContent = JSON.stringify(rectangleGeojson, null, 2);
+    };
+
+    reader.readAsText(file);
+});
+
+function pointsToRectangle(geojson) {
+  const coordinates = geojson.features.map(feature => feature.geometry.coordinates);
+
+  if (coordinates.length === 0) {
+    return null;
+  }
+
+  const lons = coordinates.map(coord => coord[0]);
+  const lats = coordinates.map(coord => coord[1]);
+
+  const minLon = Math.min(...lons);
+  const maxLon = Math.max(...lons);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+
+  const rectangleCoordinates = [
+    [minLon, minLat],  // Bottom-left corner
+    [maxLon, minLat],  // Bottom-right corner
+    [maxLon, maxLat],  // Top-right corner
+    [minLon, maxLat],  // Top-left corner
+    [minLon, minLat]   // Closing the polygon by repeating the first coordinate
+  ];
+
+  const rectangleGeojson = {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [rectangleCoordinates]
+        },
+        "properties": {}
+      }
+    ]
+  };
+
+  return rectangleGeojson;
+}
+</script>
+
+</body>
+</html>
